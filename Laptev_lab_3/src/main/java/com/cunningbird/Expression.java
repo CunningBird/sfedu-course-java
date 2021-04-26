@@ -33,7 +33,7 @@ public class Expression {
             if (isDelimiter(current)) {
                 if (current.equals("(")) stack.push(current.charAt(0));
                 else if (current.equals(")")) {
-                    while (!(stack.readTop() == '(')) {
+                    while (!(stack.peek() == '(')) {
                         rpn.add(String.valueOf(stack.pop()));
                         if (stack.isEmpty()) {
                             throw new Exception("Wrong brackets");
@@ -44,7 +44,7 @@ public class Expression {
                         rpn.add(String.valueOf(stack.pop()));
                     }
                 } else {
-                    while (!stack.isEmpty() && (priority(current) <= priority(String.valueOf(stack.readTop())))) {
+                    while (!stack.isEmpty() && (priority(current) <= priority(String.valueOf(stack.peek())))) {
                         rpn.add(String.valueOf(stack.pop()));
                     }
                     stack.push(current.charAt(0));
@@ -55,7 +55,7 @@ public class Expression {
         }
 
         while (!stack.isEmpty()) {
-            if (isOperator(String.valueOf(stack.readTop()))) {
+            if (isOperator(String.valueOf(stack.peek()))) {
                 rpn.add(String.valueOf(stack.pop()));
             } else {
                 throw new Exception("Wrong brackets");

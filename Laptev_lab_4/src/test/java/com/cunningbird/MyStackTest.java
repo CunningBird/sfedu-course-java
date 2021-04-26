@@ -6,13 +6,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
-public class MyCharStackTest {
+public class MyStackTest {
 
-    private final char[] test = { 'a', 'b', 'c', 'd' };
+    private final String[] test = { "Aa", "Bb", "Cc", "Dd" };
 
     @Test
     public void push() {
-        MyCharStack stack = new MyCharStack(3);
+        MyStack<String> stack = new MyStack<>(3);
         assertTrue(stack.push(test[0]));
         assertEquals(stack.getCount(), 1);
 
@@ -30,7 +30,7 @@ public class MyCharStackTest {
 
     @Test
     public void pop() {
-        MyCharStack stack = new MyCharStack(3);
+        MyStack<String> stack = new MyStack<>(3);
         assertTrue(stack.push(test[0]));
         assertTrue(stack.push(test[1]));
         assertTrue(stack.push(test[2]));
@@ -50,7 +50,7 @@ public class MyCharStackTest {
 
     @Test
     public void readTop() {
-        MyCharStack stack = new MyCharStack(3);
+        MyStack<String> stack = new MyStack<>(3);
         assertTrue(stack.push(test[0]));
         assertSame(stack.peek(), test[0]);
 
@@ -65,43 +65,25 @@ public class MyCharStackTest {
     }
 
     @Test
-    public void remove() {
-        String str = "String";
-        char[] strArr = str.toCharArray();
-
-        // Check first element delete
-        MyCharStack stack1 = this.createStack(str);
-        assertEquals(stack1.remove(0), strArr[0]);
-
-        // Check middle element delete
-        MyCharStack stack2 = this.createStack(str);
-        assertEquals(stack2.remove(3), strArr[3]);
-
-        // Check last element delete
-        MyCharStack stack3 = this.createStack(str);
-        assertEquals(stack3.remove(strArr.length - 1), strArr[strArr.length - 1]);
-    }
-
-    @Test
     public void isEmpty() {
         // Check empty stack
-        MyCharStack stack1 = this.createStack("");
+        MyStack<String> stack1 = this.createStack(new String[]{});
         Assert.assertTrue(stack1.isEmpty());
 
         // Check stack with one element
-        MyCharStack stack2 = this.createStack("S");
+        MyStack<String> stack2 = this.createStack(new String[]{""});
         Assert.assertFalse(stack2.isEmpty());
 
         // Check stack with many elements
-        MyCharStack stack3 = this.createStack("Str");
+        MyStack<String> stack3 = this.createStack(new String[]{"Aa", "Bb"});
         Assert.assertFalse(stack3.isEmpty());
     }
 
-    public MyCharStack createStack(String str) {
-        MyCharStack stack = new MyCharStack(str.length());
+    public MyStack<String> createStack(String[] arr) {
+        MyStack<String> stack = new MyStack<>(arr.length);
 
-        for (char ch : str.toCharArray()) {
-            stack.push(ch);
+        for (String string : arr) {
+            stack.push(string);
         }
 
         return stack;

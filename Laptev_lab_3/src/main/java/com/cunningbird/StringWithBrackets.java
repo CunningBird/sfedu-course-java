@@ -33,7 +33,7 @@ public class StringWithBrackets {
                 stack.push(c);
             }
             if (isClosingBracket(c)) {
-                if (isPair(stack.readTop(), c)) {
+                if (isPair(stack.peek(), c)) {
                     stack.pop();
                 }
             }

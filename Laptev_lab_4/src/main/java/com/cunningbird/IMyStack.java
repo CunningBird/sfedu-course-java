@@ -1,11 +1,13 @@
 package com.cunningbird;
 
 public interface IMyStack<E> {
-    void push(E element);
+    boolean push(E element);
 
     E pop();
 
-    E readTop();
+    E peek();
 
     boolean isEmpty();
+
+    public int getCount();
 }

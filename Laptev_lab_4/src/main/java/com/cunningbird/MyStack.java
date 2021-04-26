@@ -4,27 +4,45 @@ public class MyStack<E> implements IMyStack<E> {
 
     protected Object[] elementData;
 
-    private int top;
+    private int count;
 
     public MyStack(int size) {
-        this.top = -1;
+        count = 0;
         elementData = new Object[size];
     }
 
-    public void push(E element) {
-        elementData[++top] = element;
+    public boolean push(E element) {
+        if (elementData.length <= count) {
+            return false;
+        }
+
+        elementData[count++] = element;
+
+        return true;
     }
 
     public E pop() {
-        return elementData(top--);
+        if (count > 0) {
+            return elementData(--count);
+        }
+
+        return null;
     }
 
-    public E readTop() {
-        return elementData(top);
+    public E peek() {
+        if (count == 0) {
+            return null;
+        }
+
+        return elementData(count-1);
     }
 
     public boolean isEmpty() {
-        return (top == -1);
+        return (count == 0);
+    }
+
+    public int getCount() {
+        return count;
     }
 
     @SuppressWarnings("unchecked")

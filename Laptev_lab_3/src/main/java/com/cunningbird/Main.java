@@ -14,5 +14,8 @@ public class Main {
 
         System.out.println(expression1.convertRPN());
         System.out.println(expression2.convertRPN());
+
+        MyCharStack stack = new MyCharStack(4);
+        System.out.println(stack.pop());
     }
 }
