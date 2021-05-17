@@ -1,6 +1,7 @@
 package com.cunningbird;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -51,6 +52,16 @@ public class Letters implements Collection<Character> {
     }
 
     @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object o : c) {
+            if (!contains(o)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean add(Character character) {
         if (size >= elementData.length) {
             elementData = Arrays.copyOf(elementData, size + 10);
@@ -61,60 +72,44 @@ public class Letters implements Collection<Character> {
         return true;
     }
 
-    public boolean add(Letters letters) {
-        size += letters.size();
-
-        elementData = Stream.concat(Arrays.stream(elementData), Arrays.stream(letters.toArray()))
-                .toArray(Character[]::new);
-
+    @Override
+    public boolean addAll(Collection<? extends Character> c) {
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0)
+            return false;
+        Object[] elementData;
+        final int s;
+        if (numNew > (elementData = this.elementData).length - (s = size))
+            elementData = grow(s + numNew);
+        System.arraycopy(a, 0, elementData, s, numNew);
+        size = s + numNew;
         return true;
     }
 
     @Override
     public boolean remove(Object o) {
-        //if (o == null || getClass() != o.getClass()) return false;
-        //Letters letters = (Letters) o;
-
-        //return true;
+        for (int i = 0; i < size; ++i) {
+            if (o.equals(elementData[i])) {
+                fastRemove(i);
+                return true;
+            }
+        }
         return false;
     }
 
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return false;
+    private void fastRemove(int i) {
+        int length = size - i - 1;
+        if (length > 0) {
+            System.arraycopy(elementData, i + 1, elementData, i, length);
+        }
+        elementData[--size] = null;
     }
 
-    @Override
-    public boolean addAll(Collection<? extends Character> c) {
-        size += c.size();
-
-        elementData = Stream.concat(Arrays.stream(elementData), Arrays.stream(c.toArray()))
-                .toArray(Character[]::new);
-
-        return true;
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeIf(Predicate<? super Character> filter) {
-        return Collection.super.removeIf(filter);
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return batchRemove(c, true, 0, size);
-    }
-
-    private boolean batchRemove(Collection<?> c, boolean complement, final int from, final int end) {
+    boolean batchRemove(Collection<?> c, boolean complement, final int from, final int end) {
         Objects.requireNonNull(c);
-        Collection<Character> collection = (Collection<Character>) c;
         final Object[] es = elementData;
         int r;
-        // Optimize for initial run of survivors
         for (r = from;; r++) {
             if (r == end)
                 return false;
@@ -127,8 +122,6 @@ public class Letters implements Collection<Character> {
                 if (c.contains(e = es[r]) == complement)
                     es[w++] = e;
         } catch (Throwable ex) {
-            // Preserve behavioral compatibility with AbstractCollection,
-            // even if c.contains() throws.
             System.arraycopy(es, r, es, w, end - r);
             w += end - r;
             throw ex;
@@ -145,36 +138,18 @@ public class Letters implements Collection<Character> {
     }
 
     @Override
-    public Character[] toArray() {
-        return Arrays.copyOf(elementData, size);
+    public boolean removeAll(Collection<?> c) {
+        return batchRemove(c, false, 0, size);
     }
 
     @Override
-    public int hashCode() {
-        int result = Objects.hash(size);
-        result = 31 * result + Arrays.hashCode(elementData);
-        return result;
+    public boolean removeIf(Predicate<? super Character> filter) {
+        return Collection.super.removeIf(filter);
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        for (Character character : elementData) {
-            sb.append(character);
-        }
-
-        return sb.toString();
-    }
-
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return null;
-    }
-
-    @Override
-    public <T> T[] toArray(IntFunction<T[]> generator) {
-        return Collection.super.toArray(generator);
+    public boolean retainAll(Collection<?> c) {
+        return batchRemove(c, true, 0, size);
     }
 
     @Override
@@ -185,14 +160,6 @@ public class Letters implements Collection<Character> {
     @Override
     public Stream<Character> parallelStream() {
         return Collection.super.parallelStream();
-    }
-
-    @Override
-    public void clear() {
-        final Character[] es = elementData;
-        for (int to = size, i = size = 0; i < to; i++) {
-            es[i] = null;
-        }
     }
 
     @Override
@@ -207,16 +174,21 @@ public class Letters implements Collection<Character> {
 
     private class Itr implements Iterator<Character> {
 
-        int cursor;       // index of next element to return
-        int lastRet = -1; // index of last element returned; -1 if no such
+        int cursor;
+        int lastRet = -1;
 
-        Itr() {}
+        Itr() {
+        }
 
+        @Override
         public boolean hasNext() {
             return cursor != size;
         }
 
+        @Override
         public Character next() {
+            if (size == 0)
+                return null;
             int i = cursor;
             if (i >= size)
                 throw new NoSuchElementException();
@@ -227,17 +199,62 @@ public class Letters implements Collection<Character> {
             return (Character) elementData[lastRet = i];
         }
 
+        @Override
         public void remove() {
             if (lastRet < 0)
                 throw new IllegalStateException();
 
             try {
-                Letters.this.remove(lastRet);
+                Letters.this.fastRemove(lastRet);
                 cursor = lastRet;
                 lastRet = -1;
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
             }
         }
+    }
+
+    private Object[] grow(int minCapacity) {
+        return elementData = Arrays.copyOf(elementData, minCapacity + 10);
+    }
+
+    @Override
+    public void clear() {
+        final Character[] es = elementData;
+        for (int to = size, i = size = 0; i < to; i++) {
+            es[i] = null;
+        }
+    }
+
+    @Override
+    public Character[] toArray() {
+        return Arrays.copyOf(elementData, size);
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        if (a.length < size)
+            // Make a new array of a's runtime type, but my contents:
+            return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        System.arraycopy(elementData, 0, a, 0, size);
+        if (a.length > size)
+            a[size] = null;
+        return a;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (Character c : this) {
+            result.append(c);
+        }
+        return result.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(size);
+        result = 31 * result + Arrays.hashCode(elementData);
+        return result;
     }
 }

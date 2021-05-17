@@ -3,7 +3,7 @@ package com.cunningbird;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        StringWithBrackets string1 = new StringWithBrackets("<String>(with){right}[brackets]");
+        StringWithBrackets string1 = new StringWithBrackets("<String>(w(i)th){right}[brackets]");
         StringWithBrackets string2 = new StringWithBrackets("<String>(with)}wrong{]brackets]");
 
         System.out.println("String 1 validation is: " + string1.validate());

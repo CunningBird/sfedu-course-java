@@ -38,11 +38,19 @@ public class LettersTest {
     @Test
     public void testAdd() {
         col = new Letters("qw");
-        col.add(new Letters("1"));
+        col.add('1');
         assertEquals("qw1", col.toString());
         assertEquals(3, col.size());
     }
 
+    @Test
+    public void testAdd1() {
+        col = new Letters("qw");
+        col.add('1');
+        col.add('2');
+        assertEquals("qw12", col.toString());
+        assertEquals(4, col.size());
+    }
 
     @Test
     public void testAddAll() {
@@ -50,6 +58,14 @@ public class LettersTest {
         col.addAll(new Letters("123"));
         assertEquals("qw123", col.toString());
         assertEquals(5, col.size());
+    }
+
+    @Test
+    public void testAddAll1() {
+        col = new Letters("qw");
+        col.addAll(new Letters("1"));
+        assertEquals("qw1", col.toString());
+        assertEquals(3, col.size());
     }
 
     @Test
@@ -95,7 +111,7 @@ public class LettersTest {
         Iterator<Character> cl = col.iterator();
         assertEquals(true, cl.hasNext());
         col.clear();
-        assertNull(cl);
+        assertNull(cl.next());
     }
 
     @Test
@@ -138,7 +154,7 @@ public class LettersTest {
     @Test
     public void testRemove() {
         col = new Letters("142345");
-        col.remove(new Letters("4"));
+        col.remove('4');
         assertEquals("12345", col.toString());
     }
 
