@@ -10,21 +10,20 @@ public class Main {
 
     public static void main(String[] args) {
         MyGraph myGraph = new MyGraph();
-        myGraph.addEdge(0, 2);
-        myGraph.addEdge(2, 4);
-        myGraph.addEdge(2, 8);
-        myGraph.addEdge(8, 1);
-        myGraph.addEdge(8, 7);
-        myGraph.addEdge(4, 1);
-        myGraph.addEdge(4, 6);
-        myGraph.addEdge(7, 6);
-        myGraph.addEdge(7, 3);
-        myGraph.addEdge(1, 3);
-        myGraph.addEdge(6, 5);
-        myGraph.addEdge(3, 5);
 
-        int[] points = new int[]{1, 6};
-        System.out.println(myGraph.pathCounts(points));
+        myGraph.addEdge(1, 3);
+        myGraph.addEdge(1, 7);
+        myGraph.addEdge(2, 4);
+        myGraph.addEdge(3, 0);
+        myGraph.addEdge(3, 5);
+        myGraph.addEdge(5, 4);
+        myGraph.addEdge(6, 2);
+        myGraph.addEdge(6, 5);
+        myGraph.addEdge(7, 0);
+        myGraph.addEdge(7, 6);
+
+        int[] startPoints = new int[]{2, 7};
+        System.out.println(myGraph.pathsCount(startPoints));
     }
 }
 
@@ -41,13 +40,6 @@ class MyGraph {
         return vertexMap.containsKey(vertexName);
     }
 
-    public boolean hasEdge(Integer vertexName1, Integer vertexName2) {
-        if (!hasVertex(vertexName1)) return false;
-
-        List<Integer> edges = vertexMap.get(vertexName1);
-        return Collections.binarySearch(edges, vertexName2) != -1;
-    }
-
     public void addEdge(Integer vertexName1, Integer vertexName2) {
         if (!hasVertex(vertexName1)) addVertex(vertexName1);
         if (!hasVertex(vertexName2)) addVertex(vertexName2);
@@ -57,16 +49,8 @@ class MyGraph {
         Collections.sort(edges);
     }
 
-    public Map<Integer, List<Integer>> getVertexMap() {
-        return vertexMap;
-    }
-
-    /**
-     * @param Y - Array of Vertexes
-     * @return Count of ways to each Vertex
-     */
-    public int pathCounts(int[] Y) {
-        int T;
+    // TODO FIX THIS
+    public int pathsCount(int[] Y) {
         int[] M = new int[vertexMap.size()];
         int[] V = new int[vertexMap.size()];
 
@@ -79,6 +63,7 @@ class MyGraph {
             V[i] = 1;
         }
 
+        int T;
         int _T;
         int[] _M = new int[vertexMap.size()];
         int[] _V = new int[vertexMap.size()];
@@ -96,7 +81,7 @@ class MyGraph {
                 Integer key = entry.getKey();
                 List<Integer> value = entry.getValue();
 
-                for (Integer str: value) {
+                for (Integer str : value) {
                     _V[key] += V[str];
                 }
             }
